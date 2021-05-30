@@ -1,6 +1,6 @@
 /*	Screensaver based on Slime-Simulation by Sebastian League: https://github.com/SebLague/Slime-Simulation/
-*	Limiting factor in performance is number of dots as their logic is
-*	handled by CPU. Blur is written as shader so resolutin is not an issue.
+*	Limiting factor in performance is number of dots as their logic is handled
+*	by CPU. Blur is written as shader so resolution (# of pixels) is not an issue.
 */	
 
 #include <SFML/Graphics.hpp>
@@ -11,19 +11,12 @@
 #define Spawn_Mode 0	// 0 - Random, 1 - Center, 2 - Circle
 
 // All the variables to play with
-#if _ITERATOR_DEBUG_LEVEL > 0
-const float width = 1920.0f * 0.5f, height = 1080.0f * 0.5f;
-const int numberOfAgents = 5'000;
-#else
-const float width = 1920.0f * 1.0f, height = 1080.0f * 1.0f;
-const int numberOfAgents = 50'000;
-#endif // DEBUG_LEVEL > 0
-
+float width = 1920.0f, height = 1080.0f;
+unsigned int numberOfAgents = 50'000;
 const float PI = 3.1415927f;
 const float speed = 1.5f;
-const float fadingCoeff = 0.98f;
 const float changeDirAngle = 0.01745329f * 12.0f;	// one deg * angle
-const int sensorSize = 1;
+const int sensorSize = 1;	// size of sampled area
 const float blurOffset = 1.01f;
 
 sf::Image TrailsMap;
@@ -201,7 +194,7 @@ void UpadteAgent(Agent& agent)
 	}
 
 	agent.m_Position = newPosition;
-	TrailsMap.setPixel(static_cast<size_t>(newPosition.x), static_cast<size_t>(newPosition.y), sf::Color::White);
+	TrailsMap.setPixel(static_cast<unsigned int>(newPosition.x), static_cast<unsigned int>(newPosition.y), sf::Color::White);
 }
 
 #if Use_CPU_Blur
@@ -259,24 +252,25 @@ int main()
 	srand(static_cast<unsigned int>(time(NULL)));
 
 #if _ITERATOR_DEBUG_LEVEL > 0
-	sf::VideoMode VidMode(width, height);
+	numberOfAgents = 5'000;
 	auto Style = sf::Style::Default;
 #else
-	sf::VideoMode VidMode;
-	VidMode.getDesktopMode();
 	auto Style = sf::Style::Fullscreen;
 #endif // DEBUG_LEVEL > 0
 
-	sf::RenderWindow window(VidMode, "Screensaver", Style);
-	window.setMouseCursorVisible(true);
-	//window.setFramerateLimit(144);
+	width = static_cast<float>(sf::VideoMode::getDesktopMode().width);
+	height = static_cast<float>(sf::VideoMode::getDesktopMode().height);
+
+	sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Screensaver", Style);
+	window.setMouseCursorVisible(false);
+	window.setFramerateLimit(144);
 
 	TrailsMap.create(static_cast<unsigned int>(width), static_cast<unsigned int>(height), sf::Color::Black);
 	sf::Texture texture;
 	texture.loadFromImage(TrailsMap);
 
 	sf::RenderTexture RendTargForShader;
-	RendTargForShader.create(width, height);
+	RendTargForShader.create(static_cast<unsigned int>(width), static_cast<unsigned int>(height));
 
 	sf::Sprite sprite(texture);
 
@@ -284,7 +278,7 @@ int main()
 	BlurShader.loadFromMemory(BlurShaderString, sf::Shader::Fragment);
 	//BlurShader.loadFromFile("blur.glsl", sf::Shader::Fragment);
 
-	BlurShader.setUniform("textureSize", sf::Vector2f(static_cast<unsigned int>(width), static_cast<unsigned int>(height)));
+	BlurShader.setUniform("textureSize", sf::Vector2f(width, height));
 	BlurShader.setUniform("MyTexture", texture);
 	BlurShader.setUniform("offset", blurOffset);
 
@@ -292,7 +286,7 @@ int main()
 
 	while (window.isOpen())
 	{
-		for (int i = 0; i < numberOfAgents; i++)
+		for (unsigned int i = 0; i < numberOfAgents; i++)
 			UpadteAgent(AgentsTable[i]);
 
 		texture.loadFromImage(TrailsMap);
