@@ -71,8 +71,8 @@ void main()\n\
 	}\n\
 \n\
 	// degrade color\n\
-	gl_FragColor.r = max(0.0f, gl_FragColor.r - 0.05f);\n\
-	gl_FragColor.g = max(0.0f, gl_FragColor.g - 0.04f);\n\
+	gl_FragColor.r = max(0.0f, gl_FragColor.r - 0.04f);\n\
+	gl_FragColor.g = max(0.0f, gl_FragColor.g - 0.03f);\n\
 	gl_FragColor.b = max(0.0f, gl_FragColor.b - 0.01f);\n\
 }";	// Shader in String form
 
@@ -187,8 +187,6 @@ void UpadteAgent(Agent& agent)
 
 	if (newPosition.x < 0 || newPosition.x >= width || newPosition.y < 0 || newPosition.y >= height)
 	{
-		//newPosition.x = std::min(width - 0.01f, std::max(0.01f, newPosition.x));
-		//newPosition.y = std::min(height - 0.01f, std::max(0.01f, newPosition.y));
 		newPosition = { Random01() * width, Random01() * height };
 		agent.m_Angle = (Random01() * 2 * PI);
 	}

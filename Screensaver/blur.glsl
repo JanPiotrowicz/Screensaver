@@ -47,7 +47,7 @@ void main()
 	}
 
 	// degrade color
-	gl_FragColor.r = max(0.0f, gl_FragColor.r - 0.05f);
-	gl_FragColor.g = max(0.0f, gl_FragColor.g - 0.04f);
+	gl_FragColor.r = max(0.0f, gl_FragColor.r - 0.04f);
+	gl_FragColor.g = max(0.0f, gl_FragColor.g - 0.03f);
 	gl_FragColor.b = max(0.0f, gl_FragColor.b - 0.01f);
 }
